@@ -1,153 +1,172 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // ОБЯЗАТЕЛЬНО для управления сценами
 
 /// <summary>
-/// PlayerController: Отвечает за движение игрока (горизонтальное) и
-/// ключевую механику игры — переключение гравитации.
-/// Использует компоненты Rigidbody для физики.
+/// Управляет всеми механиками игрока:
+/// 1. Горизонтальное движение (A/D)
+/// 2. Переключение гравитации (Space)
+/// 3. Обработка столкновений (Смерть, Победа)
 /// </summary>
-[RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
-    // --- Настраиваемые параметры (Отображаются в инспекторе Unity) ---
-
-    [Header("Настройки движения")]
-    [Tooltip("Скорость горизонтального перемещения игрока.")]
+    [Header("Настройки Движения")]
+    [Tooltip("Скорость горизонтального движения")]
     public float moveSpeed = 5f;
-
-    [Header("Настройки гравитации")]
-    [Tooltip("Сила гравитации, приложенная к игроку.")]
+    [Tooltip("Сила гравитации/прыжка")]
     public float gravityForce = 9.81f;
+    [Tooltip("Направление движения (для отладки)")]
+    public float moveInput;
 
-    // --- Приватные поля ---
-
-    // Компонент Rigidbody игрока для управления физикой.
+    // Приватные переменные
     private Rigidbody rb;
-
-    // Текущее направление гравитации. По умолчанию -Y (вниз).
     private Vector3 currentGravityDirection = Vector3.down;
+    private bool isGrounded = false;
+    private bool isGravitySwitched = false; // Отслеживаем текущее состояние гравитации
 
-    // Флаг для предотвращения многократного переключения гравитации за короткое время.
-    private bool canChangeGravity = true;
-    private float gravityCooldown = 0.5f; // Задержка между переключениями.
+    // --- Константы для Тегов (безопасный способ) ---
+    private const string DANGER_TAG = "Danger";
+    private const string PORTAL_TAG = "Portal";
+    private const string GROUND_TAG = "Ground";
 
-    // --- Методы Unity ---
 
-    void Awake()
+    void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;
+        if (rb == null)
+        {
+            Debug.LogError("PlayerController требует компонент Rigidbody!");
+        }
+
+        // Убедимся, что стандартная гравитация Unity отключена
+        rb.useGravity = false;
     }
 
     void Update()
     {
-        HandleGravitySwitchInput();
+        HandleInput();
     }
 
     void FixedUpdate()
     {
-        ApplyGravity();
         HandleMovement();
+        ApplyGravity();
+        CheckGrounded();
     }
 
-    // --- Логика ввода и механик ---
-
     /// <summary>
-    /// Применяет настроенную гравитацию к Rigidbody.
+    /// Обрабатывает весь ввод с клавиатуры в Update()
     /// </summary>
-    private void ApplyGravity()
+    private void HandleInput()
     {
-        Vector3 gravityVector = currentGravityDirection * gravityForce;
-        rb.AddForce(gravityVector, ForceMode.Acceleration);
+        // 1. Ввод Движения
+        moveInput = Input.GetAxis("Horizontal"); // -1 (A) до 1 (D)
+
+        // 2. Ввод Переключения Гравитации (Прыжок)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            SwitchGravity();
+        }
     }
 
     /// <summary>
-    /// Обрабатывает горизонтальное движение.
+    /// Применяет горизонтальное движение в FixedUpdate()
     /// </summary>
     private void HandleMovement()
     {
-        // Получаем ввод по горизонтальной оси.
-        float horizontalInput = Input.GetAxis("Horizontal");
+        // Рассчитываем вектор "вправо" перпендикулярно текущей гравитации
+        Vector3 rightVector = Vector3.ProjectOnPlane(Vector3.right, currentGravityDirection).normalized;
+        Vector3 moveVelocity = rightVector * moveInput * moveSpeed;
 
-        // Если нет ввода, выходим.
-        if (Mathf.Approximately(horizontalInput, 0f))
-        {
-            return;
-        }
+        // Применяем скорость, СОХРАНЯЯ текущую вертикальную (гравитационную) скорость
+        // Это исправляет баг "медленного подъема"
+        rb.velocity = new Vector3(moveVelocity.x, rb.velocity.y, moveVelocity.z);
 
-        // --- ФИКС ИНВЕРСИИ ДВИЖЕНИЯ ---
-
-        // 1. Определяем, какая ось является "вверх" (направление, противоположное гравитации).
-        Vector3 upVector = -currentGravityDirection;
-
-        // 2. Определяем направление "вправо" (перпендикулярно оси "вверх").
-        // Мы используем Quaternion.FromToRotation для создания корректного горизонтального направления
-        // независимо от текущего поворота куба, но с учетом новой плоскости гравитации.
-
-        // В нашем случае (гравитация только вверх/вниз по оси Y), направление движения всегда
-        // будет вдоль глобальной оси X (Vector3.right).
-
-        // Использование Vector3.right для движения (даже после поворота)
-        // гарантирует, что D всегда будет двигать "вправо", а A — "влево".
-        Vector3 movementDirection = Vector3.right;
-
-        // Мы должны гарантировать, что мы движемся по плоскости, перпендикулярной гравитации.
-        // Vector3.ProjectOnPlane проецирует наш желаемый вектор (Vector3.right) на плоскость,
-        // нормаль которой является нашей силой гравитации.
-        movementDirection = Vector3.ProjectOnPlane(movementDirection, currentGravityDirection).normalized;
-
-        // Создаем вектор горизонтальной скорости.
-        Vector3 horizontalVelocity = movementDirection * (horizontalInput * moveSpeed);
-
-        // Устанавливаем новую скорость Rigidbody:
-        // Мы хотим сохранить только ВЕРТИКАЛЬНУЮ (гравитационную) скорость.
-        Vector3 currentVerticalSpeed = Vector3.Project(rb.velocity, currentGravityDirection);
-
-        // Новая скорость = Горизонтальная + Вертикальная
-        rb.velocity = horizontalVelocity + currentVerticalSpeed;
+        // <-- БЛОК if (isGravitySwitched) ПОЛНОСТЬЮ УДАЛЕН
     }
 
     /// <summary>
-    /// Обрабатывает нажатие клавиши для переключения гравитации.
-    /// Используется клавиша 'Space' или 'E'.
+    /// Постоянно применяет нашу кастомную силу гравитации
     /// </summary>
-    private void HandleGravitySwitchInput()
+    private void ApplyGravity()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && canChangeGravity)
-        {
-            SwitchGravity();
-            canChangeGravity = false;
-            Invoke(nameof(ResetGravityCooldown), gravityCooldown);
-        }
+        rb.AddForce(currentGravityDirection * gravityForce, ForceMode.Acceleration);
     }
 
     /// <summary>
-    /// Переключает гравитацию на противоположное направление.
+    /// Инвертирует направление гравитации
     /// </summary>
     private void SwitchGravity()
     {
-        // Инвертируем текущее направление гравитации.
+        // Инвертируем направление
         currentGravityDirection *= -1;
+        isGravitySwitched = !isGravitySwitched; // Переключаем флаг
 
-        // Наше новое "вверх" — это направление, противоположное текущей гравитации.
-        Vector3 newUp = -currentGravityDirection;
-
-        // Вычисляем вращение.
-        // Quaternion.LookRotation — это надежный способ повернуть объект.
-        // ВАЖНО: Мы сохраняем текущее направление transform.forward, чтобы не сбивать камеру.
-        Quaternion targetRotation = Quaternion.LookRotation(transform.forward, newUp);
+        // Плавный поворот модели игрока, чтобы он "прилипал" ногами к потолку
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -currentGravityDirection) * transform.rotation;
+        // Мы можем запустить Coroutine для плавного поворота, но пока сделаем мгновенно:
         transform.rotation = targetRotation;
 
-        Debug.Log("Гравитация переключена! Новое направление: " + currentGravityDirection);
-
-        // Сброс вертикальной скорости.
-        rb.velocity = Vector3.ProjectOnPlane(rb.velocity, currentGravityDirection);
+        Debug.Log("Гравитация переключена. Новое направление: " + currentGravityDirection);
     }
 
     /// <summary>
-    /// Сбрасывает флаг кулдауна, разрешая следующее переключение гравитации.
+    /// Проверяет, стоит ли игрок на земле (или потолке)
     /// </summary>
-    private void ResetGravityCooldown()
+    private void CheckGrounded()
     {
-        canChangeGravity = true;
+        // Используем Raycast, чтобы "пощупать" землю под ногами (или над головой)
+        float rayLength = 0.6f; // Чуть длиннее половины куба (0.5)
+        Vector3 rayDirection = currentGravityDirection;
+
+        isGrounded = Physics.Raycast(transform.position, rayDirection, rayLength);
+
+        // Для отладки: рисуем луч в редакторе
+        Debug.DrawRay(transform.position, rayDirection * rayLength, isGrounded ? Color.green : Color.red);
     }
+
+    // ####################################################################
+    // НОВАЯ ЛОГИКА: ОБРАБОТКА СТОЛКНОВЕНИЙ
+    // ####################################################################
+
+    /// <summary>
+    /// Вызывается АВТОМАТИЧЕСКИ, когда Rigidbody игрока во что-то врезается
+    /// </summary>
+    /// <param name="collision">Информация о столкновении</param>
+    private void OnCollisionEnter(Collision collision)
+    {
+        // 1. Проверяем, не столкнулись ли мы с "Опасностью"
+        if (collision.gameObject.CompareTag(DANGER_TAG))
+        {
+            Debug.Log("Столкновение с ОПАСНОСТЬЮ! Перезапуск уровня...");
+            RestartLevel();
+        }
+        // 2. Проверяем, не столкнулись ли мы с "Порталом"
+        else if (collision.gameObject.CompareTag(PORTAL_TAG))
+        {
+            Debug.Log("Столкновение с порталом! Запрос на загрузку следующего уровня...");
+
+            // Получаем компонент портала с объекта, с которым столкнулись
+            SceneTransitionPortal portal = collision.gameObject.GetComponent<SceneTransitionPortal>();
+            if (portal != null)
+            {
+                // Вызываем метод на самом портале
+                portal.LoadNextScene();
+            }
+            else
+            {
+                Debug.LogWarning("Объект с тегом 'Portal' не имеет скрипта 'SceneTransitionPortal'!");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Перезагружает текущую активную сцену
+    /// </summary>
+    private void RestartLevel()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene(currentSceneName);
+    }
+
+    // <-- МЕТОД LoadNextLevel() ПОЛНОСТЬЮ УДАЛЕН
 }
