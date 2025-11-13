@@ -24,6 +24,8 @@ public class SceneTransitionPortal : MonoBehaviour
 
         if (string.IsNullOrEmpty(sceneToLoad))
         {
+            AudioManager.Instance.PlaySFX("PortalEnter");
+
             Debug.LogError("Имя сцены для загрузки не указано в SceneTransitionPortal!", this.gameObject);
             return;
         }

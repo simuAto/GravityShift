@@ -64,6 +64,7 @@ public class PlayerController : MonoBehaviour
         // 2. Ввод Переключения Гравитации (Прыжок)
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
+            AudioManager.Instance.PlaySFX("GravitySwitch");
             SwitchGravity();
         }
     }
@@ -138,6 +139,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag(DANGER_TAG))
         {
             Debug.Log("Столкновение с ОПАСНОСТЬЮ! Перезапуск уровня...");
+            AudioManager.Instance.PlaySFX("PlayerDeath");
             RestartLevel();
         }
         // 2. Проверяем, не столкнулись ли мы с "Порталом"

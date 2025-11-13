@@ -1,0 +1,84 @@
+using UnityEngine;
+using System; // Нужно для Array.Find
+
+/// <summary>
+/// Универсальный класс для хранения пары Имя-АудиоКлип.
+/// [System.Serializable] позволяет нам редактировать это в инспекторе.
+/// </summary>
+[System.Serializable]
+public class Sound
+{
+    public string name; // Имя, по которому будем вызывать звук (напр., "Jump")
+    public AudioClip clip; // Сам аудиофайл
+}
+
+/// <summary>
+/// Управляет всей фоновой музыкой (BGM) и звуковыми эффектами (SFX).
+/// Использует паттерн Синглтон (один объект, досутпен для всей программы) 
+/// и DontDestroyOnLoad, чтобы существовать между сценами.
+/// </summary>
+public class AudioManager : MonoBehaviour
+{
+    // --- Синглтон ---
+    public static AudioManager Instance;
+
+    [Header("Audio Sources")]
+    [Tooltip("Источник для фоновой музыки (должен быть в режиме Loop)")]
+    public AudioSource bgmSource;
+    [Tooltip("Источник для звуковых эффектов (не в режиме Loop)")]
+    public AudioSource sfxSource;
+
+    [Header("Audio Clips")]
+    [Tooltip("Музыка, играющая на фоне (BGM)")]
+    public AudioClip backgroundMusic;
+    [Tooltip("Список всех звуковых эффектов (SFX)")]
+    public Sound[] sfxList;
+
+
+    private void Awake()
+    {
+        // --- Настройка Синглтона ---
+        if (Instance == null)
+        {
+            Instance = this;
+            // Делаем этот объект "бессмертным" при переходе между сценами
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            // Если менеджер уже существует (напр., мы вернулись в MainMenu),
+            // уничтожаем этот дубликат.
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        // Назначаем и запускаем фоновую музыку
+        if (backgroundMusic != null)
+        {
+            bgmSource.clip = backgroundMusic;
+            bgmSource.loop = true;
+            bgmSource.Play();
+        }
+    }
+
+    /// <summary>
+    /// Проигрывает звуковой эффект (SFX) по его имени.
+    /// </summary>
+    /// <param name="name">Имя звука из списка sfxList</param>
+    public void PlaySFX(string name)
+    {
+        // Ищем звук в нашем массиве sfxList по имени
+        Sound s = Array.Find(sfxList, sound => sound.name == name);
+
+        if (s == null)
+        {
+            Debug.LogWarning("AudioManager: Звук с именем '" + name + "' не найден!");
+            return;
+        }
+
+        // Используем PlayOneShot, чтобы звуки могли накладываться
+        sfxSource.PlayOneShot(s.clip);
+    }
+}
