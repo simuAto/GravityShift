@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
     public float gravityForce = 9.81f;
     [Tooltip("Направление движения (для отладки)")]
     public float moveInput;
+    [Tooltip("Координата Y, ниже которой игрок считается 'упавшим'")]
+    public float yBottomLimit = -10f;
+    [Tooltip("Координата Y, выше которой игрок считается 'улетевшим'")]
+    public float yUpperLimit = 10f;
 
     // Приватные переменные
     private Rigidbody rb;
@@ -33,17 +37,18 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         if (rb == null)
-        {
             Debug.LogError("PlayerController требует компонент Rigidbody!");
-        }
 
         // Убедимся, что стандартная гравитация Unity отключена
         rb.useGravity = false;
+        rb.freezeRotation = true;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
     void Update()
     {
         HandleInput();
+        CheckDeathZone();
     }
 
     void FixedUpdate()
@@ -64,8 +69,32 @@ public class PlayerController : MonoBehaviour
         // 2. Ввод Переключения Гравитации (Прыжок)
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            AudioManager.Instance.PlaySFX("GravitySwitch");
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX("GravitySwitch");
+            else
+                Debug.Log("Объекта AudioManager не существует.");
+
             SwitchGravity();
+        }
+    }
+
+    /// <summary>
+    /// Проверяет, не вышел ли игрок за пределы мира (не упал ли).
+    /// Вызывается из Update().
+    /// </summary>
+    private void CheckDeathZone()
+    {
+        // Сравниваем текущую позицию Y игрока с порогом
+        if (transform.position.y < yBottomLimit || transform.position.y > yUpperLimit)
+        {
+            Debug.Log("Игрок вышел за порог. Перезапуск уровня...");
+
+            // Воспроизводим звук смерти (с проверкой на null)
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX("PlayerDeath");
+
+            // Вызываем метод перезагрузки
+            RestartLevel();
         }
     }
 
@@ -81,8 +110,6 @@ public class PlayerController : MonoBehaviour
         // Применяем скорость, СОХРАНЯЯ текущую вертикальную (гравитационную) скорость
         // Это исправляет баг "медленного подъема"
         rb.velocity = new Vector3(moveVelocity.x, rb.velocity.y, moveVelocity.z);
-
-        // <-- БЛОК if (isGravitySwitched) ПОЛНОСТЬЮ УДАЛЕН
     }
 
     /// <summary>
@@ -104,7 +131,8 @@ public class PlayerController : MonoBehaviour
 
         // Плавный поворот модели игрока, чтобы он "прилипал" ногами к потолку
         Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -currentGravityDirection) * transform.rotation;
-        // Мы можем запустить Coroutine для плавного поворота, но пока сделаем мгновенно:
+        
+        // Можно запустить Coroutine для плавного поворота, но пока сделаем мгновенно:
         transform.rotation = targetRotation;
 
         Debug.Log("Гравитация переключена. Новое направление: " + currentGravityDirection);
@@ -139,7 +167,11 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag(DANGER_TAG))
         {
             Debug.Log("Столкновение с ОПАСНОСТЬЮ! Перезапуск уровня...");
-            AudioManager.Instance.PlaySFX("PlayerDeath");
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX("PlayerDeath");
+            else
+                Debug.Log("Объекта AudioManager не существует.");
+
             RestartLevel();
         }
         // 2. Проверяем, не столкнулись ли мы с "Порталом"
@@ -155,9 +187,7 @@ public class PlayerController : MonoBehaviour
                 portal.LoadNextScene();
             }
             else
-            {
                 Debug.LogWarning("Объект с тегом 'Portal' не имеет скрипта 'SceneTransitionPortal'!");
-            }
         }
     }
 
@@ -169,6 +199,4 @@ public class PlayerController : MonoBehaviour
         string currentSceneName = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene(currentSceneName);
     }
-
-    // <-- МЕТОД LoadNextLevel() ПОЛНОСТЬЮ УДАЛЕН
 }
