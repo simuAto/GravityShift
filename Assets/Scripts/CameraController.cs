@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Управляет камерой.
 /// Плавно следует за игроком, сохраняя постоянное расстояние и угол,
-/// и ИГНОРИРУЕТ вращение игрока.
+/// и игнорирует вращение игрока.
 /// </summary>
 public class CameraController : MonoBehaviour
 {
@@ -25,7 +25,7 @@ public class CameraController : MonoBehaviour
         }
 
         // Вычисляем и запоминаем изначальное смещение камеры от игрока
-        // (то, как вы выставили камеру в редакторе)
+        // (то, как выставили камеру в редакторе)
         offset = transform.position - target.position;
     }
 
@@ -49,6 +49,6 @@ public class CameraController : MonoBehaviour
         transform.position = smoothedPosition;
 
         // 4. (Опционально) Убеждаемся, что камера всегда смотрит на игрока
-        // transform.LookAt(target); // <-- Раскомментируйте, если нужно, чтобы камера всегда "смотрела" на центр куба
+        // transform.LookAt(target); // <-- Раскомментировать, если нужно, чтобы камера всегда "смотрела" на центр куба
     }
 }

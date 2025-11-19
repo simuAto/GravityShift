@@ -3,8 +3,7 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Общий скрипт для порталов, отвечающих за переход между сценами.
-/// Должен быть размещен на объекте с соответствующим Тегом (например, "Finish").
-/// Теперь этот класс является универсальным для перехода на любой следующий уровень или экран.
+/// Должен быть размещен на объекте с соответствующим Тегом (например, "Portal").
 /// </summary>
 public class SceneTransitionPortal : MonoBehaviour
 {
@@ -18,7 +17,7 @@ public class SceneTransitionPortal : MonoBehaviour
     /// </summary>
     public void LoadNextScene()
     {
-        // ВАЖНО: На всякий случай всегда устанавливаем Time.timeScale на 1 перед загрузкой сцены,
+        // ВАЖНО: На всякий случай всегда устанавливать Time.timeScale на 1 перед загрузкой сцены,
         // чтобы избежать проблем, если игра была на паузе.
         Time.timeScale = 1f;
 
