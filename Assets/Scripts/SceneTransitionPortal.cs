@@ -21,18 +21,43 @@ public class SceneTransitionPortal : MonoBehaviour
         // чтобы избежать проблем, если игра была на паузе.
         Time.timeScale = 1f;
 
+        SaveTimeAndComplete();
+
         if (string.IsNullOrEmpty(sceneToLoad))
         {
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlaySFX("PortalEnter");
-            else
-                Debug.Log("Объекта AudioManager не существует.");
-
             Debug.LogError("Имя сцены для загрузки не указано в SceneTransitionPortal!", this.gameObject);
             return;
         }
 
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX("PortalEnter");
+        else
+            Debug.Log("Объекта AudioManager не существует.");
+
         Debug.Log("Портал активирован! Загрузка сцены: " + sceneToLoad);
         SceneManager.LoadScene(sceneToLoad);
+    }
+
+    private void SaveTimeAndComplete()
+    {
+        // Попытка найти таймер на сцене автоматически
+        LevelTimer timer = FindObjectOfType<LevelTimer>();
+
+        if (timer != null)
+        {
+            // Останавливаем таймер и берем время
+            float finalTime = timer.StopAndGetTime();
+
+            // Сохраняем в GameManager
+            if (GameManager.Instance != null)
+            {
+                GameManager.SetFinalTime(finalTime);
+                Debug.Log($"[PORTAL] Время {finalTime} сохранено в GameManager.");
+            }
+            else
+                Debug.LogWarning("GameManager не найден! Время не будет передано на экран победы.");
+        }
+        else
+            Debug.LogWarning("LevelTimer не найден на этой сцене. Время будет 0.");
     }
 }

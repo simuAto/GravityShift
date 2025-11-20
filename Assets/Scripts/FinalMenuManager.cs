@@ -37,7 +37,6 @@ public class WinMenuManager : MonoBehaviour
     /// </summary>
     public void OnNextLevelButtonClicked()
     {
-        // Используем логику перехода в GameManager, который знает, какой уровень следующий
         GameManager.LoadNextLevel();
     }
 

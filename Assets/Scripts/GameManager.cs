@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     // --- Синглтон ---
     public static GameManager Instance { get; private set; }
 
-    // Данные о финальном времени теперь хранятся в нестатическом поле, 
+    // Данные о финальном времени хранятся в нестатическом поле, 
     // но доступны через статический геттер/сеттер для удобства.
     private float _finalTime = 0.0f;
     public static float FinalTime => Instance != null ? Instance._finalTime : 0.0f;
