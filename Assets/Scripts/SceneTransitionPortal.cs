@@ -23,7 +23,6 @@ public class SceneTransitionPortal : MonoBehaviour
         // чтобы избежать проблем, если игра была на паузе.
         Time.timeScale = 1f;
 
-        Debug.Log("мы попали в загрузчик сцены");
         SaveTimeAndComplete();
 
         if (string.IsNullOrEmpty(sceneToLoad))
@@ -44,7 +43,6 @@ public class SceneTransitionPortal : MonoBehaviour
     private void SaveTimeAndComplete()
     {
         // Попытка найти таймер на сцене автоматически
-        Debug.Log("мы тут");
         LevelTimer timer = FindObjectOfType<LevelTimer>();
 
         if (timer != null)

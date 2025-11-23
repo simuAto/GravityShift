@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"Следующий уровень '{nextLevelName}' не найден. Переход в главное меню.");
+                    Debug.Log("Следующий уровень не найден. Переход в главное меню. В будущем на финальную сцену.");
                     SceneManager.LoadScene("MainMenu");
                 }
             }
@@ -88,7 +88,10 @@ public class GameManager : MonoBehaviour
             }
         }
         else
+        {
+            Debug.Log("Переход в главное меню.");
             SceneManager.LoadScene("MainMenu");
+        }
     }
 
     /// <summary>

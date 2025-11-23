@@ -47,4 +47,12 @@ public class WinMenuManager : MonoBehaviour
     {
         SceneManager.LoadScene("MainMenu");
     }
+
+    /// <summary>
+    /// Вызывается кнопкой "Меню уровней".
+    /// </summary>
+    public void OnLevelSelectButtonClicked()
+    {
+        SceneManager.LoadScene("LevelSelect");
+    }
 }
