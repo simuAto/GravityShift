@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // ОБЯЗАТЕЛЬНО для управления сценами
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Управляет всеми механиками игрока:
@@ -31,7 +31,6 @@ public class PlayerController : MonoBehaviour
     private const string DANGER_TAG = "Danger";
     private const string PORTAL_TAG = "Portal";
     private const string GROUND_TAG = "Ground";
-
 
     void Start()
     {

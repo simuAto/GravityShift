@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // ќЅя«ј“≈Ћ№Ќќ дл€ управлени€ сценами
+using UnityEngine.SceneManagement; // ќб€зательно дл€ управлени€ сценами
 
 /// <summary>
 /// ”правл€ет логикой √лавного ћеню.
@@ -8,8 +8,8 @@ using UnityEngine.SceneManagement; // ќЅя«ј“≈Ћ№Ќќ дл€ управлени€ сценами
 public class MainMenuManager : MonoBehaviour
 {
     [Header("Ќастройки —цен")]
-    [Tooltip("»м€ сцены, которую нужно загрузить при старте (например, 'SampleScene')")]
-    public string gameSceneName = "SampleScene";
+    [Tooltip("»м€ сцены, которую нужно загрузить при старте")]
+    public string gameSceneName;
 
     /// <summary>
     /// ћетод дл€ кнопки "Ќачать »гру".
@@ -38,5 +38,10 @@ public class MainMenuManager : MonoBehaviour
         // поэтому мы выводим сообщение в консоль дл€ теста.
         Debug.Log("¬ыход из игры...");
         Application.Quit();
+    }
+
+    public void OpenLevelSelect()
+    {
+        SceneManager.LoadScene("LevelSelect");
     }
 }

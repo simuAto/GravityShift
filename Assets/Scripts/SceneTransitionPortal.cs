@@ -3,13 +3,15 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Общий скрипт для порталов, отвечающих за переход между сценами.
-/// Должен быть размещен на объекте с соответствующим Тегом (например, "Portal").
+/// Должен быть размещен на объекте с соответствующим Тегом ("Portal").
 /// </summary>
 public class SceneTransitionPortal : MonoBehaviour
 {
     [Header("Scene Transition Settings")]
-    [Tooltip("Имя сцены, которую нужно загрузить при входе в портал (например, 'FinalScene')")]
+    [Tooltip("Имя сцены, которую нужно загрузить при входе в портал.")]
     public string sceneToLoad;
+    [Tooltip("Номер текущго уровня")]
+    public int currentLevelIndex = 1;
 
     /// <summary>
     /// Загружает указанную сцену.
@@ -21,6 +23,7 @@ public class SceneTransitionPortal : MonoBehaviour
         // чтобы избежать проблем, если игра была на паузе.
         Time.timeScale = 1f;
 
+        Debug.Log("мы попали в загрузчик сцены");
         SaveTimeAndComplete();
 
         if (string.IsNullOrEmpty(sceneToLoad))
@@ -41,6 +44,7 @@ public class SceneTransitionPortal : MonoBehaviour
     private void SaveTimeAndComplete()
     {
         // Попытка найти таймер на сцене автоматически
+        Debug.Log("мы тут");
         LevelTimer timer = FindObjectOfType<LevelTimer>();
 
         if (timer != null)
@@ -52,7 +56,8 @@ public class SceneTransitionPortal : MonoBehaviour
             if (GameManager.Instance != null)
             {
                 GameManager.SetFinalTime(finalTime);
-                Debug.Log($"[PORTAL] Время {finalTime} сохранено в GameManager.");
+                GameManager.Instance.UnlockNextLevel(currentLevelIndex);
+                Debug.Log($"Время сохранено, следуюший уровень разблокирован.");
             }
             else
                 Debug.LogWarning("GameManager не найден! Время не будет передано на экран победы.");

@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // ќЅя«ј“≈Ћ№Ќќ дл€ управлени€ сценами
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// ”правл€ет логикой ћеню ѕаузы внутри игровой сцены.
