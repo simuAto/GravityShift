@@ -30,7 +30,6 @@ public class PlayerController : MonoBehaviour
     // --- Константы для Тегов (безопасный способ) ---
     private const string DANGER_TAG = "Danger";
     private const string PORTAL_TAG = "Portal";
-    private const string GROUND_TAG = "Ground";
 
     void Start()
     {

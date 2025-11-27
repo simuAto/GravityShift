@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -57,39 +59,42 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public static void LoadNextLevel()
     {
-        string currentSceneName = SceneManager.GetActiveScene().name;
-
-        if (currentSceneName.Contains("Level_"))
+        if (Instance == null)
         {
-            string numberPart = currentSceneName.Replace("Level_", "");
+            Debug.LogError("GameManager не инициализирован. Невозможно загрузить следующий уровень.");
+            SceneManager.LoadScene("MainMenu");
+            return;
+        }
 
-            if (int.TryParse(numberPart, out int currentLevelNumber))
+        // Индекс следующего уровня, который нужно загрузить.
+        // GetReachedLevel() возвращает Level_X, который еще не пройден.
+        int nextLevelNumber = Instance.GetReachedLevel();
+
+        string nextLevelName = $"Level_{nextLevelNumber}";
+
+        // Проверяем существование сцены в Build Settings.
+        bool sceneExistsInBuildSettings = false;
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+        {
+            string path = SceneUtility.GetScenePathByBuildIndex(i);
+            string nameInBuildSettings = Path.GetFileNameWithoutExtension(path);
+
+            // Используем сравнение без учета регистра
+            if (nameInBuildSettings.Equals(nextLevelName, StringComparison.OrdinalIgnoreCase))
             {
-                int nextLevelNumber = currentLevelNumber + 1;
-                string nextLevelName = $"Level_{nextLevelNumber:D2}";
-
-                int nextSceneBuildIndex = SceneUtility.GetBuildIndexByScenePath($"Assets/Scenes/{nextLevelName}.unity");
-
-                if (nextSceneBuildIndex != -1)
-                {
-                    Debug.Log($"Следующий уровень: {nextLevelName}");
-                    SceneManager.LoadScene(nextLevelName);
-                }
-                else
-                {
-                    Debug.Log("Следующий уровень не найден. Переход в главное меню. В будущем на финальную сцену.");
-                    SceneManager.LoadScene("MainMenu");
-                }
+                sceneExistsInBuildSettings = true;
+                break;
             }
-            else
-            {
-                Debug.LogError("Имя нынешней сцены не соответвует шаблону. Переход в главное меню.");
-                SceneManager.LoadScene("MainMenu");
-            }
+        }
+
+        if (sceneExistsInBuildSettings)
+        {
+            Debug.Log($"Загрузка следующей сцены: {nextLevelName}");
+            SceneManager.LoadScene(nextLevelName);
         }
         else
         {
-            Debug.Log("Переход в главное меню.");
+            Debug.Log($"Новый уровень '{nextLevelName}' не найден в Build Settings.");
             SceneManager.LoadScene("MainMenu");
         }
     }
