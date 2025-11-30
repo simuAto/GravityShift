@@ -2457,7 +2457,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToLoad: WinScene
-  currentLevelIndex: 1
+  currentLevelIndex: 2
 --- !u!1 &2055220760
 GameObject:
   m_ObjectHideFlags: 0

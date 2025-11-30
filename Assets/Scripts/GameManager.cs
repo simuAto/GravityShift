@@ -109,7 +109,6 @@ public class GameManager : MonoBehaviour
         // Считываем, какой уровень был открыт до этого (по умолчанию 1)
         int reachedLevel = PlayerPrefs.GetInt(LEVEL_REACHED_KEY, 1);
 
-        // Если мы прошли уровень, который равен текущему открытому, значит открываем следующий (+1)
         if (completedLevelIndex >= reachedLevel)
         {
             reachedLevel = completedLevelIndex + 1;

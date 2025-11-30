@@ -1751,14 +1751,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 512906217}
   sfxSource: {fileID: 881126242}
-  backgroundMusic: {fileID: 0}
+  backgroundMusic: {fileID: 8300000, guid: f713fb882a5ca174c84abcac2310c309, type: 3}
   sfxList:
   - name: GravitySwitch
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: b2cd6a29e78403a4dba16d674002982e, type: 3}
   - name: PlayerDeath
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: b29bc61ea5e549440b579bf2a2f609e2, type: 3}
   - name: PortalEnter
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 6faa33ac248f5a84b8e0f97407127ef6, type: 3}
 --- !u!4 &1927087889
 Transform:
   m_ObjectHideFlags: 0
