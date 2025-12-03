@@ -36,6 +36,7 @@ public class SceneTransitionPortal : MonoBehaviour
         else
             Debug.Log("Объекта AudioManager не существует.");
 
+        PlayerPrefs.SetInt("PreviousSceneIndex", currentLevelIndex);
         Debug.Log("Портал активирован! Загрузка сцены: " + sceneToLoad);
         SceneManager.LoadScene(sceneToLoad);
     }

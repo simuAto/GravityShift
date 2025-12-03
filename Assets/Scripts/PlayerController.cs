@@ -17,9 +17,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Направление движения (для отладки)")]
     public float moveInput;
     [Tooltip("Координата Y, ниже которой игрок считается 'упавшим'")]
-    public float yBottomLimit = -10f;
+    public float yBottomLimit;
     [Tooltip("Координата Y, выше которой игрок считается 'улетевшим'")]
-    public float yUpperLimit = 10f;
+    public float yUpperLimit;
 
     // Приватные переменные
     private Rigidbody rb;
@@ -78,7 +78,6 @@ public class PlayerController : MonoBehaviour
 
     /// <summary>
     /// Проверяет, не вышел ли игрок за пределы мира (не упал ли).
-    /// Вызывается из Update().
     /// </summary>
     private void CheckDeathZone()
     {
@@ -146,14 +145,7 @@ public class PlayerController : MonoBehaviour
         Vector3 rayDirection = currentGravityDirection;
 
         isGrounded = Physics.Raycast(transform.position, rayDirection, rayLength);
-
-        // Для отладки: рисуем луч в редакторе
-        Debug.DrawRay(transform.position, rayDirection * rayLength, isGrounded ? Color.green : Color.red);
     }
-
-    // ####################################################################
-    // НОВАЯ ЛОГИКА: ОБРАБОТКА СТОЛКНОВЕНИЙ
-    // ####################################################################
 
     /// <summary>
     /// Вызывается АВТОМАТИЧЕСКИ, когда Rigidbody игрока во что-то врезается

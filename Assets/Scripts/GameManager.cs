@@ -66,11 +66,12 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // »ндекс следующего уровн€, который нужно загрузить.
-        // GetReachedLevel() возвращает Level_X, который еще не пройден.
-        int nextLevelNumber = Instance.GetReachedLevel();
+        int currentSceneIndex = PlayerPrefs.GetInt("PreviousSceneIndex", 1);
+        int nextLevelNumber = currentSceneIndex + 1;
 
         string nextLevelName = $"Level_{nextLevelNumber}";
+
+        Debug.Log($"{nextLevelName}");
 
         // ѕровер€ем существование сцены в Build Settings.
         bool sceneExistsInBuildSettings = false;
