@@ -43,12 +43,42 @@ public class AudioManager : MonoBehaviour
             Instance = this;
             // Делаем этот объект "бессмертным" при переходе между сценами
             DontDestroyOnLoad(gameObject);
+
+            // Подписываемся на событие гравитации
+            GameObject playerObjSubscribe = GameObject.FindWithTag("Player");
+            if (playerObjSubscribe != null)
+            {
+                PlayerController player = playerObjSubscribe.GetComponent<PlayerController>();
+                if (player != null)
+                {
+                    player.OnGravitySwitched += HandleGravitySwitch;
+                }
+            }
         }
         else
         {
             // Если менеджер уже существует (напр., мы вернулись в MainMenu),
             // уничтожаем этот дубликат.
             Destroy(gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+
+            // Отписка от события
+            GameObject playerObjUnsubscribe = GameObject.FindWithTag("Player");
+            if (playerObjUnsubscribe != null)
+            {
+                PlayerController player = playerObjUnsubscribe.GetComponent<PlayerController>();
+                if (player != null)
+                {
+                    player.OnGravitySwitched -= HandleGravitySwitch;
+                }
+            }
         }
     }
 
@@ -80,5 +110,15 @@ public class AudioManager : MonoBehaviour
 
         // Используем PlayOneShot, чтобы звуки могли накладываться
         sfxSource.PlayOneShot(s.clip);
+    }
+
+    // Метод-обработчик события
+    /// <summary>
+    /// Обработчик события, проигрывает звук при смене гравитации
+    /// </summary>
+    /// <param name="isSwitched"></param>
+    private void HandleGravitySwitch(bool isSwitched)
+    {
+        PlaySFX("GravitySwitch");
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -27,9 +28,12 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded = false;
     private bool isGravitySwitched = false; // Отслеживаем текущее состояние гравитации
 
-    // --- Константы для Тегов (безопасный способ) ---
+    // Константы для тегов (безопасный способ)
     private const string DANGER_TAG = "Danger";
     private const string PORTAL_TAG = "Portal";
+
+    // Событие: вызывается при смене гравитации. Аргумент — новое состояние (true если switched)
+    public event Action<bool> OnGravitySwitched;
 
     void Start()
     {
@@ -133,6 +137,9 @@ public class PlayerController : MonoBehaviour
         transform.rotation = targetRotation;
 
         Debug.Log("Гравитация переключена. Новое направление: " + currentGravityDirection);
+
+        // Вызывается событие (если есть подписчики)
+        OnGravitySwitched?.Invoke(isGravitySwitched);
     }
 
     /// <summary>
