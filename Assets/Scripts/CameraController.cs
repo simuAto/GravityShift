@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class CameraController : MonoBehaviour
 {
-    [Tooltip("Объект, за которым следит камера (наш Игрок)")]
+    [Tooltip("Объект, за которым следит камера")]
     public Transform target;
 
     [Tooltip("Насколько плавно камера догоняет игрока (меньше = резче, больше = плавнее)")]

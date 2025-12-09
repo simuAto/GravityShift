@@ -18,7 +18,7 @@ public class LevelSelectManager : MonoBehaviour
         // Проходимся по всем кнопкам
         for (int i = 0; i < levelButtons.Length; i++)
         {
-            // Индекс уровня = индекс массива + 1 (т.к. массив с 0, а уровни с 1)
+            // Индекс уровня = индекс массива + 1
             int levelNum = i + 1;
 
             if (levelNum > reachedLevel)
@@ -41,6 +41,9 @@ public class LevelSelectManager : MonoBehaviour
         SceneManager.LoadScene(levelName);
     }
 
+    /// <summary>
+    /// Метод для загрузки главного меню.
+    /// </summary>
     public void LoadMainMenu()
     {
         SceneManager.LoadScene("MainMenu");

@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"{nextLevelName}");
 
-        // Проверяем существование сцены в Build Settings.
+        // Проверяем существование сцены в настройках сборки
         bool sceneExistsInBuildSettings = false;
         for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
         {
@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
     /// Сохраняет прогресс: открывает следующий уровень.
     /// Вызывается при прохождении текущего уровня.
     /// </summary>
-    /// <param name="completedLevelIndex">Индекс уровня, который мы только что прошли (1, 2, 3...)</param>
+    /// <param name="completedLevelIndex">Индекс уровня, который только что был пройден.</param>
     public void UnlockNextLevel(int completedLevelIndex)
     {
         // Считываем, какой уровень был открыт до этого (по умолчанию 1)

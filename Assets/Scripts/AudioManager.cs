@@ -1,14 +1,14 @@
 using UnityEngine;
-using System; // Нужно для Array.Find
+using System;
 
 /// <summary>
 /// Универсальный класс для хранения пары Имя-АудиоКлип.
-/// [System.Serializable] позволяет нам редактировать это в инспекторе.
+/// [System.Serializable] позволяет редактировать это в инспекторе.
 /// </summary>
 [System.Serializable]
 public class Sound
 {
-    public string name; // Имя, по которому будем вызывать звук (напр., "Jump")
+    public string name; // Имя, по которому будет вызываться звук
     public AudioClip clip; // Сам аудиофайл
 }
 
@@ -41,10 +41,10 @@ public class AudioManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            // Делаем этот объект "бессмертным" при переходе между сценами
+            // Объект перестает уничтожаться при смене сцен
             DontDestroyOnLoad(gameObject);
 
-            // Подписываемся на событие гравитации
+            // Подписка на событие
             GameObject playerObjSubscribe = GameObject.FindWithTag("Player");
             if (playerObjSubscribe != null)
             {
@@ -57,8 +57,8 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            // Если менеджер уже существует (напр., мы вернулись в MainMenu),
-            // уничтожаем этот дубликат.
+            // Если менеджер уже существует,
+            // то этот дубликат уничтожается
             Destroy(gameObject);
         }
     }
@@ -84,7 +84,7 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
-        // Назначаем и запускаем фоновую музыку
+        // Назначение и запуск фоновой музыки
         if (backgroundMusic != null)
         {
             bgmSource.clip = backgroundMusic;
@@ -99,7 +99,7 @@ public class AudioManager : MonoBehaviour
     /// <param name="name">Имя звука из списка sfxList</param>
     public void PlaySFX(string name)
     {
-        // Ищем звук в нашем массиве sfxList по имени
+        // Поиск звука в массиве sfxList по имени
         Sound s = Array.Find(sfxList, sound => sound.name == name);
 
         if (s == null)
@@ -108,11 +108,10 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        // Используем PlayOneShot, чтобы звуки могли накладываться
+        // Используется PlayOneShot, чтобы звуки могли накладываться
         sfxSource.PlayOneShot(s.clip);
     }
 
-    // Метод-обработчик события
     /// <summary>
     /// Обработчик события, проигрывает звук при смене гравитации
     /// </summary>

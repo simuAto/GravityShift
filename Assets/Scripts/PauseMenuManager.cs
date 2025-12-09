@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Управляет логикой Меню Паузы внутри игровой сцены.
+/// Управляет логикой меню паузы внутри игровой сцены.
 /// Отвечает за остановку времени, показ/скрытие UI и обработку кнопок.
 /// </summary>
 public class PauseMenuManager : MonoBehaviour
@@ -20,7 +20,7 @@ public class PauseMenuManager : MonoBehaviour
 
     void Start()
     {
-        // Убедимся, что при старте уровня меню выключено и игра идет
+        // Проверка, что при старте уровня меню выключено и игра идет
         pauseMenuUI.SetActive(false);
         Time.timeScale = 1f; // 1.0f - нормальная скорость времени
         isPaused = false;
@@ -61,17 +61,17 @@ public class PauseMenuManager : MonoBehaviour
     private void PauseGame()
     {
         pauseMenuUI.SetActive(true);
-        Time.timeScale = 0f; // ОСТАНАВЛИВАЕМ ВРЕМЯ
+        Time.timeScale = 0f;
         isPaused = true;
         Debug.Log("Игра на паузе.");
     }
 
     /// <summary>
-    /// Метод для кнопки "Начать Уровень Заново".
+    /// Метод для кнопки "Начать уровень заново".
     /// </summary>
     public void RestartLevel()
     {
-        // ВАЖНО: Перед загрузкой сцены всегда возвращайте Time.timeScale в 1!
+        // ВАЖНО: Перед загрузкой сцены всегда возвращать Time.timeScale в 1!
         Time.timeScale = 1f;
 
         // Получаем имя текущей активной сцены и загружаем ее
@@ -80,11 +80,11 @@ public class PauseMenuManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Метод для кнопки "Выйти в Главное Меню".
+    /// Метод для кнопки "Главное меню".
     /// </summary>
     public void LoadMainMenu()
     {
-        // ВАЖНО: Перед загрузкой сцены всегда возвращайте Time.timeScale в 1!
+        // ВАЖНО: Перед загрузкой сцены всегда возвращать Time.timeScale в 1!
         Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
     }

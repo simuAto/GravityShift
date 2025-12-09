@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 /// Управляет всеми механиками игрока:
 /// 1. Горизонтальное движение (A/D)
 /// 2. Переключение гравитации (Space)
-/// 3. Обработка столкновений (Смерть, Победа)
+/// 3. Обработка столкновений (Смерть, победа)
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded = false;
     private bool isGravitySwitched = false; // Отслеживаем текущее состояние гравитации
 
-    // Константы для тегов (безопасный способ)
+    // Константы для тегов
     private const string DANGER_TAG = "Danger";
     private const string PORTAL_TAG = "Portal";
 
@@ -61,14 +61,14 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Обрабатывает весь ввод с клавиатуры в Update()
+    /// Обрабатывает весь ввод с клавиатуры в Update().
     /// </summary>
     private void HandleInput()
     {
-        // 1. Ввод Движения
+        // 1. Ввод движения
         moveInput = Input.GetAxis("Horizontal"); // -1 (A) до 1 (D)
 
-        // 2. Ввод Переключения Гравитации (Прыжок)
+        // 2. Ввод переключения гравитации (прыжок)
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             if (AudioManager.Instance != null)
@@ -81,7 +81,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Проверяет, не вышел ли игрок за пределы мира (не упал ли).
+    /// Проверяет, не вышел ли игрок за пределы мира.
     /// </summary>
     private void CheckDeathZone()
     {
@@ -90,7 +90,7 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Игрок вышел за порог. Перезапуск уровня...");
 
-            // Воспроизводим звук смерти (с проверкой на null)
+            // Воспроизводим звук смерти
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX("PlayerDeath");
 
@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Применяет горизонтальное движение в FixedUpdate()
+    /// Применяет горизонтальное движение в FixedUpdate().
     /// </summary>
     private void HandleMovement()
     {
@@ -108,13 +108,13 @@ public class PlayerController : MonoBehaviour
         Vector3 rightVector = Vector3.ProjectOnPlane(Vector3.right, currentGravityDirection).normalized;
         Vector3 moveVelocity = rightVector * moveInput * moveSpeed;
 
-        // Применяем скорость, СОХРАНЯЯ текущую вертикальную (гравитационную) скорость
+        // Применяем скорость, сохраняя текущую вертикальную (гравитационную) скорость
         // Это исправляет баг "медленного подъема"
         rb.velocity = new Vector3(moveVelocity.x, rb.velocity.y, moveVelocity.z);
     }
 
     /// <summary>
-    /// Постоянно применяет нашу кастомную силу гравитации
+    /// Постоянно применяет кастомную силу гравитации.
     /// </summary>
     private void ApplyGravity()
     {
@@ -122,7 +122,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Инвертирует направление гравитации
+    /// Инвертирует направление гравитации.
     /// </summary>
     private void SwitchGravity()
     {
@@ -130,10 +130,10 @@ public class PlayerController : MonoBehaviour
         currentGravityDirection *= -1;
         isGravitySwitched = !isGravitySwitched; // Переключаем флаг
 
-        // Плавный поворот модели игрока, чтобы он "прилипал" ногами к потолку
+        // Плавный поворот модели игрока, чтобы он прилипал к потолку
         Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -currentGravityDirection) * transform.rotation;
         
-        // Можно запустить Coroutine для плавного поворота, но пока сделаем мгновенно:
+        // Можно запустить Coroutine для плавного поворота, но пока мгновенно:
         transform.rotation = targetRotation;
 
         Debug.Log("Гравитация переключена. Новое направление: " + currentGravityDirection);
@@ -143,7 +143,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Проверяет, стоит ли игрок на земле (или потолке)
+    /// Проверяет, стоит ли игрок на земле (или потолке).
     /// </summary>
     private void CheckGrounded()
     {
@@ -155,15 +155,15 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Вызывается АВТОМАТИЧЕСКИ, когда Rigidbody игрока во что-то врезается
+    /// Вызывается автоматически, когда Rigidbody игрока во что-то врезается.
     /// </summary>
     /// <param name="collision">Информация о столкновении</param>
     private void OnCollisionEnter(Collision collision)
     {
-        // 1. Проверяем, не столкнулись ли мы с "Опасностью"
+        // 1. Проверяем, не столкнулся ли игрок с "Опасностью"
         if (collision.gameObject.CompareTag(DANGER_TAG))
         {
-            Debug.Log("Столкновение с ОПАСНОСТЬЮ! Перезапуск уровня...");
+            Debug.Log("Столкновение с опасностью! Перезапуск уровня...");
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX("PlayerDeath");
             else
@@ -171,12 +171,12 @@ public class PlayerController : MonoBehaviour
 
             RestartLevel();
         }
-        // 2. Проверяем, не столкнулись ли мы с "Порталом"
+        // 2. Проверяем, не столкнулся ли игрок с "Порталом"
         else if (collision.gameObject.CompareTag(PORTAL_TAG))
         {
             Debug.Log("Столкновение с порталом! Запрос на загрузку следующего уровня...");
 
-            // Получаем компонент портала с объекта, с которым столкнулись
+            // Получаем компонент портала с объекта, с которым столкнулся игрок
             SceneTransitionPortal portal = collision.gameObject.GetComponent<SceneTransitionPortal>();
             if (portal != null)
             {
@@ -189,7 +189,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Перезагружает текущую активную сцену
+    /// Перезагружает текущую активную сцену.
     /// </summary>
     private void RestartLevel()
     {

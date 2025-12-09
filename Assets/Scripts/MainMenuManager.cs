@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement; // Обязательно для управления сценами
 
 /// <summary>
-/// Управляет логикой Главного Меню.
+/// Управляет логикой главного меню.
 /// Отвечает за запуск игры и выход из приложения.
 /// </summary>
 public class MainMenuManager : MonoBehaviour
@@ -12,7 +12,7 @@ public class MainMenuManager : MonoBehaviour
     public string gameSceneName;
 
     /// <summary>
-    /// Метод для кнопки "Начать Игру".
+    /// Метод для кнопки "Начать игру".
     /// Загружает игровую сцену.
     /// </summary>
     public void StartGame()
@@ -40,6 +40,10 @@ public class MainMenuManager : MonoBehaviour
         Application.Quit();
     }
 
+    /// <summary>
+    /// Метод для кнопки "Уровни".
+    /// Открывает меню выбора уровней.
+    /// </summary>
     public void OpenLevelSelect()
     {
         SceneManager.LoadScene("LevelSelect");
